@@ -29,6 +29,10 @@ const PORT = process.env.PORT || 3000;
 // MIDDLEWARE CONFIGURATION
 // ============================================
 
+// Trust proxy - Required for Render and other reverse proxy platforms
+// This allows Express to correctly identify client IPs from X-Forwarded-For header
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({
   contentSecurityPolicy: false,
