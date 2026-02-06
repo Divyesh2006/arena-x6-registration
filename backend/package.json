@@ -1,27 +1,32 @@
 {
   "name": "arena-x6-backend",
   "version": "1.0.0",
-  "description": "Backend API for ARENA X6 Team Registration System with MySQL",
+  "description": "Backend API for ARENA X6 Team Registration System with SQLite",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["arena", "registration", "mysql", "express"],
+  "keywords": [
+    "arena",
+    "registration",
+    "sqlite",
+    "express"
+  ],
   "author": "VCET CSE (AI & ML)",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "mysql2": "^3.6.5",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "dotenv": "^16.3.1",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5",
-    "exceljs": "^4.4.0",
-    "cookie-parser": "^1.4.6"
+    "jsonwebtoken": "^9.0.2",
+    "sql.js": "^1.13.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

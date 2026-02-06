@@ -21,19 +21,14 @@ router.post('/login', validateLogin, checkValidation, async (req, res) => {
     const { username, password } = req.body;
 
     // Find admin user
-    const [admins] = await db.query(
-      'SELECT * FROM admin_users WHERE username = ?',
-      [username]
-    );
+    const admin = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
 
-    if (admins.length === 0) {
+    if (!admin) {
       return res.status(401).json({
         success: false,
         message: 'Invalid username or password'
       });
     }
-
-    const admin = admins[0];
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, admin.password_hash);
@@ -46,10 +41,7 @@ router.post('/login', validateLogin, checkValidation, async (req, res) => {
     }
 
     // Update last login time
-    await db.query(
-      'UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
-      [admin.id]
-    );
+    db.prepare('UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(admin.id);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -111,7 +103,7 @@ router.get('/teams', authenticateToken, async (req, res) => {
     params.push(parseInt(limit), parseInt(offset));
 
     // Get teams
-    const [teams] = await db.query(query, params);
+    const teams = db.prepare(query).all(...params);
 
     // Get total count for pagination
     let countQuery = 'SELECT COUNT(*) as total FROM teams WHERE 1=1';
@@ -120,7 +112,7 @@ router.get('/teams', authenticateToken, async (req, res) => {
     if (search) {
       countQuery += ' AND (team_name LIKE ? OR student1_name LIKE ? OR student2_name LIKE ? OR student1_regno LIKE ? OR student2_regno LIKE ?)';
       const searchParam = `%${search}%`;
-      countparams.push(searchParam, searchParam, searchParam, searchParam, searchParam);
+      countParams.push(searchParam, searchParam, searchParam, searchParam, searchParam);
     }
     
     if (year) {
@@ -128,8 +120,8 @@ router.get('/teams', authenticateToken, async (req, res) => {
       countParams.push(year);
     }
 
-    const [countResult] = await db.query(countQuery, countParams);
-    const total = countResult[0].total;
+    const countResult = db.prepare(countQuery).get(...countParams);
+    const total = countResult.total;
 
     res.json({
       success: true,
@@ -158,16 +150,16 @@ router.get('/teams', authenticateToken, async (req, res) => {
 router.get('/stats', authenticateToken, async (req, res) => {
   try {
     // Total teams
-    const [totalResult] = await db.query('SELECT COUNT(*) as total FROM teams');
-    const total = totalResult[0].total;
+    const totalResult = db.prepare('SELECT COUNT(*) as total FROM teams').get();
+    const total = totalResult.total;
 
     // Year-wise breakdown
-    const [yearWise] = await db.query(`
+    const yearWise = db.prepare(`
       SELECT year, COUNT(*) as count 
       FROM teams 
       GROUP BY year 
       ORDER BY year
-    `);
+    `).all();
 
     const yearBreakdown = {
       '1st Year': 0,
@@ -181,19 +173,19 @@ router.get('/stats', authenticateToken, async (req, res) => {
     });
 
     // Recent registrations (last 5)
-    const [recent] = await db.query(`
+    const recent = db.prepare(`
       SELECT team_name, created_at 
       FROM teams 
       ORDER BY created_at DESC 
       LIMIT 5
-    `);    
+    `).all();    
     // Today's registrations
-    const [todayResult] = await db.query(`
+    const todayResult = db.prepare(`
       SELECT COUNT(*) as count
       FROM teams
-      WHERE DATE(created_at) = CURDATE()
-    `);
-    const todayCount = todayResult[0].count;
+      WHERE DATE(created_at) = DATE('now')
+    `).get();
+    const todayCount = todayResult.count;
 
 
     res.json({
@@ -224,19 +216,19 @@ router.delete('/teams/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if team exists
-    const [teams] = await db.query('SELECT team_name FROM teams WHERE id = ?', [id]);
+    const team = db.prepare('SELECT team_name FROM teams WHERE id = ?').get(id);
 
-    if (teams.length === 0) {
+    if (!team) {
       return res.status(404).json({
         success: false,
         message: 'Team not found'
       });
     }
 
-    const teamName = teams[0].team_name;
+    const teamName = team.team_name;
 
     // Delete team
-    await db.query('DELETE FROM teams WHERE id = ?', [id]);
+    db.prepare('DELETE FROM teams WHERE id = ?').run(id);
 
     console.log(`🗑️ Team deleted: ${teamName} (ID: ${id}) by admin: ${req.admin.username}`);
 
@@ -261,10 +253,10 @@ router.delete('/teams/:id', authenticateToken, async (req, res) => {
 router.get('/export-excel', authenticateToken, async (req, res) => {
   try {
     // Get all teams ordered by registration date
-    const [teams] = await db.query(`
+    const teams = db.prepare(`
       SELECT * FROM teams 
       ORDER BY created_at DESC
-    `);
+    `).all();
 
     if (teams.length === 0) {
       return res.status(404).json({

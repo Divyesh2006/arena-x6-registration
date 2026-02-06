@@ -24,12 +24,9 @@ router.post('/', validateRegistration, checkValidation, async (req, res) => {
     } = req.body;
 
     // Check if team name already exists
-    const [existingTeams] = await db.query(
-      'SELECT id FROM teams WHERE team_name = ?',
-      [team_name]
-    );
+    const existingTeams = db.prepare('SELECT id FROM teams WHERE team_name = ?').get(team_name);
 
-    if (existingTeams.length > 0) {
+    if (existingTeams) {
       return res.status(400).json({
         success: false,
         message: 'Team name already exists. Please choose a different name.'
@@ -37,32 +34,30 @@ router.post('/', validateRegistration, checkValidation, async (req, res) => {
     }
 
     // Check if registration numbers are already registered in another team
-    const [existingStudent1] = await db.query(
-      'SELECT team_name FROM teams WHERE student1_regno = ? OR student2_regno = ?',
-      [student1_regno, student1_regno]
-    );
+    const existingStudent1 = db.prepare(
+      'SELECT team_name FROM teams WHERE student1_regno = ? OR student2_regno = ?'
+    ).get(student1_regno, student1_regno);
 
-    if (existingStudent1.length > 0) {
+    if (existingStudent1) {
       return res.status(400).json({
         success: false,
-        message: `Registration number ${student1_regno} is already registered in team "${existingStudent1[0].team_name}". This member is already on another team.`
+        message: `Registration number ${student1_regno} is already registered in team "${existingStudent1.team_name}". This member is already on another team.`
       });
     }
 
-    const [existingStudent2] = await db.query(
-      'SELECT team_name FROM teams WHERE student1_regno = ? OR student2_regno = ?',
-      [student2_regno, student2_regno]
-    );
+    const existingStudent2 = db.prepare(
+      'SELECT team_name FROM teams WHERE student1_regno = ? OR student2_regno = ?'
+    ).get(student2_regno, student2_regno);
 
-    if (existingStudent2.length > 0) {
+    if (existingStudent2) {
       return res.status(400).json({
         success: false,
-        message: `Registration number ${student2_regno} is already registered in team "${existingStudent2[0].team_name}". This member is already on another team.`
+        message: `Registration number ${student2_regno} is already registered in team "${existingStudent2.team_name}". This member is already on another team.`
       });
     }
 
     // Find the smallest available ID (to fill gaps from deleted teams)
-    const [allIds] = await db.query('SELECT id FROM teams ORDER BY id ASC');
+    const allIds = db.prepare('SELECT id FROM teams ORDER BY id ASC').all();
     let nextId = 1;
     
     // Find the first gap in IDs
@@ -75,15 +70,14 @@ router.post('/', validateRegistration, checkValidation, async (req, res) => {
     }
 
     // Insert new team registration with specific ID
-    const [result] = await db.query(
+    const result = db.prepare(
       `INSERT INTO teams
        (id, team_name, student1_name, student1_regno, student2_name, student2_regno, year)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [nextId, team_name, student1_name, student1_regno, student2_name, student2_regno, year]
-    );
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).run(nextId, team_name, student1_name, student1_regno, student2_name, student2_regno, year);
 
     // Log successful registration
-    console.log(` New team registered: ${team_name} (ID: ${nextId})`);
+    console.log(`✅ New team registered: ${team_name} (ID: ${nextId})`);
 
     res.status(201).json({
       success: true,
@@ -109,14 +103,11 @@ router.get('/check-team-name/:teamName', async (req, res) => {
   try {
     const { teamName } = req.params;
 
-    const [teams] = await db.query(
-      'SELECT id FROM teams WHERE team_name = ?',
-      [teamName]
-    );
+    const team = db.prepare('SELECT id FROM teams WHERE team_name = ?').get(teamName);
 
     res.json({
       success: true,
-      available: teams.length === 0
+      available: !team
     });
 
   } catch (error) {

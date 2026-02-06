@@ -1,40 +1,33 @@
 -- ARENA X6 Database Schema
--- MySQL Database Setup for Team Registration System
-
--- Create database if not exists
-CREATE DATABASE IF NOT EXISTS arena_x6 
-CHARACTER SET utf8mb4 
-COLLATE utf8mb4_unicode_ci;
-
-USE arena_x6;
+-- SQLite Database Setup for Team Registration System
 
 -- Teams Table: Stores all team registrations
 CREATE TABLE IF NOT EXISTS teams (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  team_name VARCHAR(100) UNIQUE NOT NULL,
-  student1_name VARCHAR(100) NOT NULL,
-  student1_regno VARCHAR(50) NOT NULL,
-  student2_name VARCHAR(100) NOT NULL,
-  student2_regno VARCHAR(50) NOT NULL,
-  year VARCHAR(20) NOT NULL,
-  email VARCHAR(100) NOT NULL,
-  phone VARCHAR(15) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  
-  -- Indexes for faster queries
-  INDEX idx_team_name (team_name),
-  INDEX idx_created_at (created_at DESC),
-  INDEX idx_year (year)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  team_name TEXT UNIQUE NOT NULL,
+  student1_name TEXT NOT NULL,
+  student1_regno TEXT NOT NULL,
+  student2_name TEXT NOT NULL,
+  student2_regno TEXT NOT NULL,
+  year TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for faster queries
+CREATE INDEX IF NOT EXISTS idx_team_name ON teams(team_name);
+CREATE INDEX IF NOT EXISTS idx_created_at ON teams(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_year ON teams(year);
 
 -- Admin Users Table: Stores admin credentials
 CREATE TABLE IF NOT EXISTS admin_users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  last_login TIMESTAMP NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_login DATETIME
+);
 
--- Display success message
-SELECT 'Database schema created successfully!' AS Status;
+-- Note: SQLite database is automatically created by the application
+-- This schema is maintained for reference and manual database creation if needed

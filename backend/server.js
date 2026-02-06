@@ -1,6 +1,6 @@
 /**
  * ARENA X6 - Main Server File
- * Team Registration System Backend with MySQL
+ * Team Registration System Backend with SQLite
  * 
  * Velalar College of Engineering and Technology
  * Department of CSE (AI & ML)
@@ -66,19 +66,19 @@ app.use(cookieParser());
 // Rate limiting for security
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
+  max: 1000, // Limit each IP to 1000 requests per window (generous for development)
   message: { success: false, message: 'Too many requests. Please try again later.' }
 });
 
 const registrationLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // Limit to 5 registrations per hour per IP
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit to 50 registrations per 15 minutes (generous for testing)
   message: { success: false, message: 'Too many registration attempts. Please try again later.' }
 });
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit to 10 login attempts per 15 minutes
+  max: 50, // Limit to 50 login attempts per 15 minutes
   message: { success: false, message: 'Too many login attempts. Please try again later.' }
 });
 
@@ -162,37 +162,41 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ============================================
 
-app.listen(PORT, () => {
-  console.log('\n╔════════════════════════════════════════════════════════════╗');
-  console.log('║        🏆 ARENA X6 - REGISTRATION SYSTEM API 🏆          ║');
-  console.log('╚════════════════════════════════════════════════════════════╝\n');
-  console.log(`🚀 Server running on: http://localhost:${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔒 CORS enabled for: ${process.env.FRONTEND_URL || 'all origins'}`);
-  console.log(`🏫 College: Velalar College of Engineering and Technology`);
-  console.log(`🎯 Event: ARENA X6 - Non-Technical Championship`);
-  console.log(`📅 Event Date: 12/02/2026\n`);
-  console.log('📡 Available Endpoints:');
-  console.log(`   • Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`   • Registration: http://localhost:${PORT}/api/register`);
-  console.log(`   • Admin Login: http://localhost:${PORT}/api/admin/login`);
-  console.log(`   • Admin Dashboard: http://localhost:${PORT}/api/admin/teams`);
-  console.log(`   • Excel Export: http://localhost:${PORT}/api/admin/export-excel\n`);
-  console.log('💡 Press Ctrl+C to stop the server');
-  console.log('════════════════════════════════════════════════════════════\n');
+// Wait for database initialization before starting server
+db.ready().then(() => {
+  app.listen(PORT, () => {
+    console.log('\n╔════════════════════════════════════════════════════════════╗');
+    console.log('║        🏆 ARENA X6 - REGISTRATION SYSTEM API 🏆          ║');
+    console.log('╚════════════════════════════════════════════════════════════╝\n');
+    console.log(`🚀 Server running on: http://localhost:${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔒 CORS enabled for: ${process.env.FRONTEND_URL || 'all origins'}`);
+    console.log(`🏫 College: Velalar College of Engineering and Technology`);
+    console.log(`🎯 Event: ARENA X6 - Non-Technical Championship`);
+    console.log(`📅 Event Date: 12/02/2026\n`);
+    console.log('📡 Available Endpoints:');
+    console.log(`   • Health Check: http://localhost:${PORT}/api/health`);
+    console.log(`   • Registration: http://localhost:${PORT}/api/register`);
+    console.log(`   • Admin Login: http://localhost:${PORT}/api/admin/login`);
+    console.log(`   • Admin Dashboard: http://localhost:${PORT}/api/admin/teams`);
+    console.log(`   • Excel Export: http://localhost:${PORT}/api/admin/export-excel\n`);
+    console.log('💡 Press Ctrl+C to stop the server');
+    console.log('════════════════════════════════════════════════════════════\n');
+  });
+}).catch(err => {
+  console.error('❌ Failed to start server:', err);
+  process.exit(1);
 });
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
-  await db.end();
   process.exit(0);
 });
 
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   console.log('\n\n👋 Server shutting down gracefully...');
-  await db.end();
-  console.log('Database connections closed.');
+  console.log('Database saved.');
   process.exit(0);
 });
 

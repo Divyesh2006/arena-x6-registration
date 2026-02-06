@@ -169,9 +169,13 @@ function showFieldError(fieldName, message) {
   const input = document.getElementById(fieldName);
   const errorElement = document.getElementById(`${fieldName}_error`);
   
-  input.classList.add('error');
-  errorElement.textContent = message;
-  errorElement.classList.add('show');
+  if (input) {
+    input.classList.add('error');
+  }
+  if (errorElement) {
+    errorElement.textContent = message;
+    errorElement.classList.add('show');
+  }
 }
 
 function clearErrors() {
