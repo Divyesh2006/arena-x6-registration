@@ -23,7 +23,8 @@ const authenticateToken = (req, res, next) => {
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const jwtSecret = process.env.JWT_SECRET || 'arena_x6_default_secret_key_2026_change_in_production';
+    const decoded = jwt.verify(token, jwtSecret);
     req.admin = decoded; // Attach admin info to request
     next();
   } catch (error) {

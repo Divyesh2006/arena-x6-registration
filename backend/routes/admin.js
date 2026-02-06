@@ -44,9 +44,10 @@ router.post('/login', validateLogin, checkValidation, async (req, res) => {
     db.prepare('UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(admin.id);
 
     // Generate JWT token
+    const jwtSecret = process.env.JWT_SECRET || 'arena_x6_default_secret_key_2026_change_in_production';
     const token = jwt.sign(
       { id: admin.id, username: admin.username },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '2h' }
     );
 
