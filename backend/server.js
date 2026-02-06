@@ -101,6 +101,13 @@ if (process.env.NODE_ENV === 'development') {
 // ROUTES
 // ============================================
 
+// Serve static frontend files (HTML, CSS, JS, images)
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../')));
+app.use('/css', express.static(path.join(__dirname, '../css')));
+app.use('/js', express.static(path.join(__dirname, '../js')));
+app.use('/images', express.static(path.join(__dirname, '../images')));
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
@@ -111,29 +118,21 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint
+// API Routes
+app.use('/api/register', registerRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Serve frontend HTML pages
 app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: 'ARENA X6 - Team Registration System API',
-    version: '1.0.0',
-    event: {
-      name: 'ARENA X6',
-      type: 'Non-Technical Event',
-      college: 'Velalar College of Engineering and Technology',
-      department: 'CSE (AI & ML)',
-      date: '12/02/2026',
-      location: 'Thindal, Erode'
-    },
-    endpoints: {
-      registration: '/api/register',
-      admin_login: '/api/admin/login',
-      admin_teams: '/api/admin/teams',
-      admin_stats: '/api/admin/stats',
-      admin_export: '/api/admin/export-excel',
-      health: '/api/health'
-    }
-  });
+  res.sendFile(path.join(__dirname, '../index.html'));
+});
+
+app.get('/admin-login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../admin-login.html'));
+});
+
+app.get('/admin-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '../admin-dashboard.html'));
 });
 
 // API Routes

@@ -4,9 +4,10 @@
  */
 
 // Automatically detect environment
+// In production on Render, frontend and backend are served from same origin
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000/api'
-  : 'https://arena-x6-registration.onrender.com/api';
+  : window.location.origin + '/api'; // Use same origin in production
 
 // For custom deployment, manually set:
 // const API_BASE_URL = 'https://your-custom-url.com/api';
