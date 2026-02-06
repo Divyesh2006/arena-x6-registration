@@ -110,7 +110,7 @@ form.addEventListener('submit', async function(e) {
       
       // Redirect to dashboard
       setTimeout(() => {
-        window.location.href = 'admin-dashboard.html';
+        window.location.href = '/admin-dashboard';
       }, 1000);
     } else {
       showToast(data.message || 'Invalid credentials', 'error');
@@ -146,5 +146,5 @@ function showToast(message, type = 'success') {
 
 // Check if already logged in
 if (localStorage.getItem('adminToken')) {
-  window.location.href = 'admin-dashboard.html';
+  window.location.href = '/admin-dashboard';
 }

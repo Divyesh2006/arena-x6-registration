@@ -5,7 +5,7 @@
 // Check authentication
 const token = localStorage.getItem('adminToken');
 if (!token) {
-  window.location.href = 'admin-login.html';
+  window.location.href = '/admin-login';
 }
 
 let allTeams = [];
@@ -283,7 +283,7 @@ function refreshData() {
 function logout() {
   localStorage.removeItem('adminToken');
   localStorage.removeItem('adminUsername');
-  window.location.href = 'admin-login.html';
+  window.location.href = '/admin-login';
 }
 
 // Utility Functions
