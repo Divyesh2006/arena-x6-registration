@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ARENA X6</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="dashboard-body">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="header-left">
+                <i class="fas fa-trophy"></i>
+                <h1>ARENA X6 Admin Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <span class="admin-name"><i class="fas fa-user-shield"></i> Admin</span>
+                <button onclick="logout()" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card glass-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalTeams">0</h3>
+                    <p>Total Teams</p>
+                </div>
+            </div>
+
+            <div class="stat-card glass-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalStudents">0</h3>
+                    <p>Total Students</p>
+                </div>
+            </div>
+
+            <div class="stat-card glass-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="latestYear">-</h3>
+                    <p>Latest Registration</p>
+                </div>
+            </div>
+
+            <div class="stat-card glass-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="todayCount">0</h3>
+                    <p>Today's Registrations</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teams Table -->
+        <div class="table-section glass-card">
+            <div class="table-header">
+                <h2><i class="fas fa-list"></i> Registered Teams</h2>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search teams, students, regno..."
+                            onkeyup="searchTeams()"
+                        >
+                    </div>
+                    <select id="yearFilter" onchange="filterByYear()" class="filter-select">
+                        <option value="">All Years</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                    </select>
+                    <button onclick="exportToExcel()" class="btn-export">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                    <button onclick="refreshData()" class="btn-refresh">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="teamsTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Team Name</th>
+                            <th>Student 1</th>
+                            <th>Reg No 1</th>
+                            <th>Student 2</th>
+                            <th>Reg No 2</th>
+                            <th>Year</th>
+                            <th>Registered On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teamsTableBody">
+                        <tr>
+                            <td colspan="9" class="loading-cell">
+                                <i class="fas fa-spinner fa-spin"></i> Loading teams...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <div class="showing-info" id="showingInfo">Showing 0 of 0 teams</div>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content glass-card">
+            <div class="modal-icon danger">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2>Confirm Deletion</h2>
+            <p>Are you sure you want to delete team <strong id="deleteTeamName"></strong>?</p>
+            <p class="warning-text">This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button onclick="closeDeleteModal()" class="btn-cancel">Cancel</button>
+                <button onclick="confirmDelete()" class="btn-delete">
+                    <i class="fas fa-trash"></i> Delete Team
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/admin-dashboard.js"></script>
+</body>
+</html>

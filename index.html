@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARENA X6 - Team Registration | VCET</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div id="particles-js" class="particles-background"></div>
+    
+    <!-- Gradient Orbs -->
+    <div class="gradient-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero Header -->
+        <header class="hero-header">
+            <div class="logo-container">
+                <div class="logo-icon pulse">
+                    <i class="fas fa-trophy"></i>
+                </div>
+            </div>
+            
+            <h1 class="event-title glow-text">
+                <span class="gradient-text">ARENA X6</span>
+            </h1>
+            
+            <p class="event-tagline">Non-Technical Championship 2026</p>
+            
+            <div class="college-info">
+                <h2 class="college-name">Velalar College of Engineering and Technology</h2>
+                <p class="department">Department of Computer Science Engineering (AI & ML)</p>
+            </div>
+            
+            <div class="event-meta">
+                <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>12th February, 2026</span>
+                </div>
+                <div class="meta-divider">|</div>
+                <div class="meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Thindal, Erode</span>
+                </div>
+                <div class="meta-divider">|</div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Afternoon Onwards</span>
+                </div>
+            </div>
+
+            <!-- Prizes Info -->
+            <div class="prizes-section glass-card">
+                <div class="prizes-icon">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h3>Prizes & Recognition</h3>
+                <p class="prizes-text">Certificates will be awarded to Winners & Runners-Up</p>
+            </div>
+
+            <!-- Student Coordinators -->
+            <div class="coordinators-section glass-card">
+                <div class="coordinators-header">
+                    <i class="fas fa-user-tie"></i>
+                    <h3>Student Coordinators</h3>
+                </div>
+                <div class="coordinators-grid">
+                    <div class="coordinator-card">
+                        <div class="coordinator-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h4>Divyesh B</h4>
+                        <a href="tel:9043025949" class="coordinator-phone">
+                            <i class="fas fa-phone"></i>
+                            9043025949
+                        </a>
+                    </div>
+                    <div class="coordinator-card">
+                        <div class="coordinator-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h4>Kiruthikashree A V</h4>
+                        <a href="tel:9585634924" class="coordinator-phone">
+                            <i class="fas fa-phone"></i>
+                            9585634924
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Registration Form Card -->
+        <div class="form-card glass-card">
+            <div class="form-header">
+                <div class="form-icon-large">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>Team Registration</h2>
+                <p>Register your 2-member team for ARENA X6</p>
+            </div>
+
+            <form id="registrationForm" class="registration-form">
+                <!-- Team Name -->
+                <div class="form-group">
+                    <label for="team_name">
+                        <i class="fas fa-flag"></i>
+                        Team Name
+                    </label>
+                    <input 
+                        type="text" 
+                        id="team_name" 
+                        name="team_name" 
+                        placeholder="Enter your creative team name"
+                        required
+                        minlength="3"
+                        maxlength="100"
+                        autocomplete="off"
+                    >
+                    <span class="form-hint">Choose a unique name (3-100 characters)</span>
+                    <span class="error-message" id="team_name_error"></span>
+                    <span class="success-indicator" id="team_name_success"><i class="fas fa-check-circle"></i></span>
+                </div>
+
+                <!-- Student 1 Section -->
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">
+                        <i class="fas fa-user"></i>
+                        Student 1 Details
+                    </div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="student1_name">
+                            <i class="fas fa-user-circle"></i>
+                            Full Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="student1_name" 
+                            name="student1_name" 
+                            placeholder="First member's full name"
+                            required
+                            minlength="2"
+                            maxlength="100"
+                        >
+                        <span class="error-message" id="student1_name_error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="student1_regno">
+                            <i class="fas fa-id-card"></i>
+                            Registration Number
+                        </label>
+                        <input 
+                            type="text" 
+                            id="student1_regno" 
+                            name="student1_regno" 
+                            placeholder="e.g., 732924AMR001"
+                            required
+                            maxlength="20"
+                            style="text-transform: uppercase"
+                        >
+                        <span class="error-message" id="student1_regno_error"></span>
+                    </div>
+                </div>
+
+                <!-- Student 2 Section -->
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">
+                        <i class="fas fa-user"></i>
+                        Student 2 Details
+                    </div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="student2_name">
+                            <i class="fas fa-user-circle"></i>
+                            Full Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="student2_name" 
+                            name="student2_name" 
+                            placeholder="Second member's full name"
+                            required
+                            minlength="2"
+                            maxlength="100"
+                        >
+                        <span class="error-message" id="student2_name_error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="student2_regno">
+                            <i class="fas fa-id-card"></i>
+                            Registration Number
+                        </label>
+                        <input 
+                            type="text" 
+                            id="student2_regno" 
+                            name="student2_regno" 
+                            placeholder="e.g., 732924AMR002"
+                            required
+                            maxlength="20"
+                            style="text-transform: uppercase"
+                        >
+                        <span class="error-message" id="student2_regno_error"></span>
+                    </div>
+                </div>
+
+                <!-- Additional Details -->
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">
+                        <i class="fas fa-info-circle"></i>
+                        Additional Details
+                    </div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="year">
+                        <i class="fas fa-graduation-cap"></i>
+                        Academic Year
+                    </label>
+                    <select id="year" name="year" required>
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                    </select>
+                    <span class="error-message" id="year_error"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="btn-text">REGISTER FOR ARENA X6</span>
+                    <span class="btn-icon"><i class="fas fa-rocket"></i></span>
+                    <span class="btn-loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Processing...
+                    </span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 Velalar College of Engineering and Technology. All Rights Reserved.</p>
+            <p class="footer-tagline">Building Excellence Through Innovation</p>
+        </footer>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content glass-card">
+            <div class="success-animation">
+                <div class="success-checkmark">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <h2>Registration Successful!</h2>
+            <p>Welcome to ARENA X6! 🎉</p>
+            <div class="team-details">
+                <div class="detail-item">
+                    <strong>Team ID:</strong>
+                    <span id="modalTeamId" class="highlight-text"></span>
+                </div>
+                <div class="detail-item">
+                    <strong>Team Name:</strong>
+                    <span id="modalTeamName" class="highlight-text"></span>
+                </div>
+            </div>
+            <p class="success-message">Your registration has been confirmed. Get ready for an amazing event!</p>
+            <button onclick="closeModal()" class="btn-secondary">
+                <i class="fas fa-times-circle"></i> Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/register.js"></script>
+    <!-- Floating Admin Button -->
+    <a href="admin-login.html" class="admin-float-btn" title="Admin Login">
+        <i class="fas fa-user-shield"></i>
+    </a>
+
+</body>
+</html>
+

@@ -1,0 +1,43 @@
+<!-- Add this right before the closing </body> tag in index.html -->
+
+    <!-- Floating Admin Button -->
+    <a href="admin-login.html" class="admin-float-btn" title="Admin Login">
+        <i class="fas fa-user-shield"></i>
+    </a>
+
+<!-- Add this CSS to css/style.css or create inline style -->
+<style>
+.admin-float-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    text-decoration: none;
+    animation: pulse-admin 2s ease-in-out infinite;
+}
+
+.admin-float-btn:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+}
+
+@keyframes pulse-admin {
+    0%, 100% {
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+    50% {
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.7), 0 0 40px rgba(102, 126, 234, 0.4);
+    }
+}
+</style>
