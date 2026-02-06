@@ -11,21 +11,23 @@ echo "============================================"
 echo "Creating data directory..."
 mkdir -p data
 
-# Check if database file exists
-if [ ! -f "data/arena_x6.db" ]; then
-    echo ""
-    echo "Database not found. Initializing..."
-    echo "Creating admin user (admin/admin@arena2026)..."
-    node generate-admin.js
-    
-    if [ $? -eq 0 ]; then
-        echo "✓ Database initialized successfully!"
-    else
-        echo "✗ Error: Failed to initialize database"
-        exit 1
-    fi
+# Always run admin setup to ensure admin user exists
+echo ""
+echo "Initializing admin user..."
+node generate-admin.js
+
+if [ $? -eq 0 ]; then
+    echo "✓ Admin user setup completed!"
 else
-    echo "✓ Database already exists"
+    echo "✗ Warning: Admin setup had issues, but continuing..."
+fi
+
+# Verify database exists
+if [ -f "data/arena_x6.db" ]; then
+    echo "✓ Database file exists"
+    ls -lh "data/arena_x6.db"
+else
+    echo "⚠ Warning: Database file not found, it will be created on first request"
 fi
 
 echo ""
@@ -35,6 +37,8 @@ echo "============================================"
 echo "Frontend will be available at: /"
 echo "Backend API will be available at: /api/*"
 echo "Admin login at: /admin-login"
+echo "Diagnostic endpoint: /api/diagnostic"
+echo "Admin check: /api/admin/check-setup"
 echo "============================================"
 echo ""
 

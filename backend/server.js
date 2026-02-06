@@ -44,18 +44,30 @@ const corsOptions = {
     const allowedOrigins = [
       'http://127.0.0.1:5500',
       'http://localhost:5500',
+      'http://127.0.0.1:5501',
+      'http://localhost:5501',
       'https://divyesh2006.github.io',
       'https://arena-x6-registration.onrender.com',
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.some(allowed => origin.includes(allowed))) {
+    // Check if origin is in allowed list or matches a pattern
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (origin === allowed) return true;
+      if (origin.startsWith(allowed)) return true;
+      return false;
+    });
+    
+    if (isAllowed || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
-      callback(null, true); // Allow all for development
+      console.log(`⚠️  CORS blocked origin: ${origin}`);
+      callback(null, true); // Still allow for now, but log the issue
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -116,6 +128,30 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Database diagnostic endpoint
+app.get('/api/diagnostic', (req, res) => {
+  try {
+    const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
+    const teamCount = db.prepare('SELECT COUNT(*) as count FROM teams').get();
+    
+    res.json({
+      success: true,
+      database: {
+        connected: true,
+        admin_users: adminCount.count,
+        teams: teamCount.count,
+        database_file: process.env.DB_PATH || 'backend/data/arena_x6.db'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Database diagnostic failed',
+      error: error.message
+    });
+  }
 });
 
 // API Routes

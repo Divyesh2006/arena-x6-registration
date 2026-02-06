@@ -13,6 +13,72 @@ const { validateLogin, checkValidation } = require('../middleware/validation');
 const { generateExcelReport } = require('../utils/excelGenerator');
 
 /**
+ * POST /api/admin/init-admin
+ * Initialize admin user if not exists (for deployment troubleshooting)
+ */
+router.post('/init-admin', async (req, res) => {
+  try {
+    const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
+    
+    if (adminCount.count > 0) {
+      return res.json({
+        success: true,
+        message: 'Admin user already exists',
+        admin_exists: true
+      });
+    }
+    
+    // Create admin user
+    const bcrypt = require('bcryptjs');
+    const password = 'admin@arena2026';
+    const hash = bcrypt.hashSync(password, 10);
+    
+    db.prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)').run('admin', hash);
+    
+    console.log('✅ Admin user created via init-admin endpoint');
+    
+    res.json({
+      success: true,
+      message: 'Admin user created successfully',
+      username: 'admin',
+      default_password: 'admin@arena2026'
+    });
+  } catch (error) {
+    console.error('Init admin error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating admin user',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/admin/check-setup
+ * Check if admin user exists (diagnostic endpoint)
+ */
+router.get('/check-setup', (req, res) => {
+  try {
+    const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
+    const admin = db.prepare('SELECT username, created_at FROM admin_users LIMIT 1').get();
+    
+    res.json({
+      success: true,
+      admin_exists: adminCount.count > 0,
+      admin_count: adminCount.count,
+      admin_username: admin ? admin.username : null,
+      created_at: admin ? admin.created_at : null
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error checking admin setup',
+      error: error.message
+    });
+  }
+});
+
+/**
  * POST /api/admin/login
  * Admin login authentication
  */
@@ -24,6 +90,7 @@ router.post('/login', validateLogin, checkValidation, async (req, res) => {
     const admin = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
 
     if (!admin) {
+      console.log(`❌ Login failed: Admin user '${username}' not found`);
       return res.status(401).json({
         success: false,
         message: 'Invalid username or password'
@@ -34,6 +101,7 @@ router.post('/login', validateLogin, checkValidation, async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, admin.password_hash);
 
     if (!isValidPassword) {
+      console.log(`❌ Login failed: Invalid password for user '${username}'`);
       return res.status(401).json({
         success: false,
         message: 'Invalid username or password'

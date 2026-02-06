@@ -73,6 +73,16 @@ async function setupAdmin() {
     const buffer = Buffer.from(data);
     fs.writeFileSync(dbPath, buffer);
     
+    // Verify admin was created
+    const verifyStmt = db.prepare('SELECT username FROM admin_users WHERE username = ?');
+    verifyStmt.bind(['admin']);
+    const verified = verifyStmt.step() ? verifyStmt.getAsObject() : null;
+    verifyStmt.free();
+    
+    if (verified) {
+      console.log('✅ Admin verification successful!');
+    }
+    
     console.log('📋 Admin Login Credentials:');
     console.log('   Username: admin');
     console.log('   Password: admin@arena2026');
