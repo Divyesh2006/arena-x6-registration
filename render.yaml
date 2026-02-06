@@ -1,0 +1,42 @@
+services:
+  # Backend API Service
+  - type: web
+    name: arena-x6-registration
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && chmod +x start.sh && ./start.sh
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: admin@arena2026
+    disk:
+      name: arena-data
+      mountPath: /opt/render/project/src/backend/data
+      sizeGB: 1
+
+  # Static Site for Frontend (Alternative to GitHub Pages)
+  - type: web
+    name: arena-x6-frontend
+    runtime: static
+    buildCommand: echo "No build needed"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    envVars:
+      - key: API_URL
+        value: https://arena-x6-registration.onrender.com

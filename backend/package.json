@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "init": "node generate-admin.js",
     "dev": "nodemon server.js"
   },
   "keywords": [
