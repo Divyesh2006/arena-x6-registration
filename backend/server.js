@@ -44,10 +44,12 @@ const corsOptions = {
     const allowedOrigins = [
       'http://127.0.0.1:5500',
       'http://localhost:5500',
+      'https://divyesh2006.github.io',
+      'https://arena-x6-registration.onrender.com',
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.some(allowed => origin.includes(allowed))) {
       callback(null, true);
     } else {
       callback(null, true); // Allow all for development

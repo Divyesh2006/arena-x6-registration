@@ -3,11 +3,13 @@
  * Update API_BASE_URL with your backend URL when deploying
  */
 
-// Local development
-const API_BASE_URL = 'http://localhost:3000/api';
+// Automatically detect environment
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api'
+  : 'https://arena-x6-registration.onrender.com/api';
 
-// For production deployment, uncomment and update:
-// const API_BASE_URL = 'https://your-railway-app.railway.app/api';
+// For custom deployment, manually set:
+// const API_BASE_URL = 'https://your-custom-url.com/api';
 
 const API_ENDPOINTS = {
   register: `${API_BASE_URL}/register`,
