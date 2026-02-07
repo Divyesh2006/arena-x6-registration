@@ -55,14 +55,23 @@ async function initializeDatabase() {
   }
 }
 
+// Convert SQLite placeholders (?) to PostgreSQL placeholders ($1, $2, ...)
+function convertPlaceholders(query) {
+  let index = 0;
+  return query.replace(/\?/g, () => `$${++index}`);
+}
+
 // Wrapper functions for compatibility with existing code
 const dbWrapper = {
   prepare: (query) => {
+    // Convert ? to $1, $2, etc.
+    const pgQuery = convertPlaceholders(query);
+    
     return {
       get: async (...params) => {
         const client = await pool.connect();
         try {
-          const result = await client.query(query, params);
+          const result = await client.query(pgQuery, params);
           return result.rows[0] || null;
         } finally {
           client.release();
@@ -71,7 +80,7 @@ const dbWrapper = {
       all: async (...params) => {
         const client = await pool.connect();
         try {
-          const result = await client.query(query, params);
+          const result = await client.query(pgQuery, params);
           return result.rows;
         } finally {
           client.release();
@@ -80,7 +89,7 @@ const dbWrapper = {
       run: async (...params) => {
         const client = await pool.connect();
         try {
-          const result = await client.query(query, params);
+          const result = await client.query(pgQuery, params);
           return { changes: result.rowCount };
         } finally {
           client.release();
