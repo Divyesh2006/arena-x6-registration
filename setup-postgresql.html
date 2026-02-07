@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Up PostgreSQL - Step by Step</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 10px; }
+    .header p { opacity: 0.95; font-size: 16px; }
+    
+    .content { padding: 30px; }
+    
+    .step {
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      position: relative;
+    }
+    .step.completed {
+      border-left-color: #10b981;
+      background: #d1fae5;
+    }
+    .step-number {
+      background: #667eea;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    .step.completed .step-number {
+      background: #10b981;
+    }
+    .step h3 {
+      display: inline-block;
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .step-content {
+      margin-left: 42px;
+      color: #555;
+      line-height: 1.8;
+    }
+    .step-content code {
+      background: #ffffff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #d63384;
+      font-size: 14px;
+    }
+    .copy-box {
+      background: #2d3748;
+      color: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .copy-btn:hover { background: #5568d3; }
+    
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+    .btn:hover { background: #5568d3; transform: translateY(-2px); }
+    .btn-success { background: #10b981; }
+    .btn-success:hover { background: #059669; }
+    
+    .alert {
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+    .alert-warning {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      color: #92400e;
+    }
+    .alert-success {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+    }
+    .alert-info {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      color: #1e3a8a;
+    }
+    
+    .checkbox {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+    }
+    .checkbox input {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .checkbox label {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    ol { margin-left: 20px; }
+    ol li { margin: 8px 0; }
+    
+    .test-section {
+      background: #f0f9ff;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .test-result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 6px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔧 Set Up PostgreSQL on Render</h1>
+      <p>Follow these steps to enable permanent data storage</p>
+    </div>
+    
+    <div class="content">
+      <div class="alert alert-warning">
+        <strong>⚠️ Your data is being lost because:</strong><br>
+        You're using SQLite on Render's free tier, which wipes all files every restart.<br>
+        PostgreSQL provides FREE permanent storage that survives restarts.
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step" id="step1">
+        <span class="step-number">1</span>
+        <h3>Create PostgreSQL Database</h3>
+        <div class="step-content">
+          <ol>
+            <li>Open Render Dashboard: <a href="https://dashboard.render.com/" target="_blank" class="btn">Open Render Dashboard</a></li>
+            <li>Click <code>New +</code> button (top right)</li>
+            <li>Select <code>PostgreSQL</code></li>
+            <li>Fill in these settings:</li>
+          </ol>
+          <div class="copy-box">
+Name: arena-x6-db
+Database: arena_x6
+User: arena_admin
+Region: Singapore (or closest to you)
+PostgreSQL Version: 16
+Plan: Free
+          </div>
+          <ol start="5">
+            <li>Click <code>Create Database</code></li>
+            <li>⏳ Wait 1-2 minutes until status shows "Available"</li>
+          </ol>
+          <div class="checkbox">
+            <input type="checkbox" id="check1" onchange="completeStep(1)">
+            <label for="check1">✅ I've created the PostgreSQL database</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" id="step2">
+        <span class="step-number">2</span>
+        <h3>Copy Database URL</h3>
+        <div class="step-content">
+          <ol>
+            <li>Once database status is "Available", you'll see connection info</li>
+            <li>Look for <code>Internal Database URL</code></li>
+            <li>Click the <strong>Copy</strong> icon next to it</li>
+          </ol>
+          <div class="alert alert-info">
+            <strong>📋 It should look like:</strong><br>
+            <code>postgresql://arena_admin:ABC123xyz@dpg-xxxxx-a.singapore-postgres.render.com/arena_x6</code>
+          </div>
+          <div class="checkbox">
+            <input type="checkbox" id="check2" onchange="completeStep(2)">
+            <label for="check2">✅ I've copied the Internal Database URL</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" id="step3">
+        <span class="step-number">3</span>
+        <h3>Add to Your Web Service</h3>
+        <div class="step-content">
+          <ol>
+            <li>Go back to Render Dashboard</li>
+            <li>Find your <code>arena-x6-registration</code> web service</li>
+            <li>Click on it to open</li>
+            <li>Click <code>Environment</code> tab (left sidebar)</li>
+            <li>Click <code>Add Environment Variable</code> button</li>
+            <li>Enter:
+              <div class="copy-box">
+Key: DATABASE_URL
+Value: [paste your copied URL here]
+                <button class="copy-btn" onclick="copyText('DATABASE_URL')">Copy Key</button>
+              </div>
+            </li>
+            <li>Click <code>Save Changes</code></li>
+            <li>⏳ Render will automatically redeploy (2-3 minutes)</li>
+          </ol>
+          <div class="checkbox">
+            <input type="checkbox" id="check3" onchange="completeStep(3)">
+            <label for="check3">✅ I've added DATABASE_URL environment variable</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step" id="step4">
+        <span class="step-number">4</span>
+        <h3>Push Your Code</h3>
+        <div class="step-content">
+          <p>Open your terminal (VS Code or Command Prompt) and run:</p>
+          <div class="copy-box">
+git add .
+git commit -m "Add PostgreSQL support"
+git push origin main
+            <button class="copy-btn" onclick="copyCommands()">Copy Commands</button>
+          </div>
+          <p>Render will detect changes and redeploy automatically.</p>
+          <div class="checkbox">
+            <input type="checkbox" id="check4" onchange="completeStep(4)">
+            <label for="check4">✅ I've pushed the code to GitHub</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step" id="step5">
+        <span class="step-number">5</span>
+        <h3>Wait for Deployment</h3>
+        <div class="step-content">
+          <ol>
+            <li>Go to your web service on Render</li>
+            <li>Click <code>Logs</code> tab</li>
+            <li>Wait until you see: <code>Server running on...</code></li>
+            <li>Look for: <code>🐘 Using PostgreSQL (persistent storage)</code></li>
+          </ol>
+          <div class="alert alert-success" style="display: none;" id="postgres-success">
+            <strong>✅ Perfect!</strong> If you see "Using PostgreSQL" in logs, you're all set!
+          </div>
+          <div class="checkbox">
+            <input type="checkbox" id="check5" onchange="completeStep(5)">
+            <label for="check5">✅ Deployment finished and shows "Using PostgreSQL"</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step" id="step6">
+        <span class="step-number">6</span>
+        <h3>Initialize Admin User</h3>
+        <div class="step-content">
+          <p>Click this button to create the admin user in your new PostgreSQL database:</p>
+          <button class="btn btn-success" onclick="initAdmin()">Initialize Admin User</button>
+          <div id="adminResult" class="test-result"></div>
+          <div class="checkbox" style="margin-top: 15px;">
+            <input type="checkbox" id="check6" onchange="completeStep(6)">
+            <label for="check6">✅ Admin user initialized successfully</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Section -->
+      <div class="test-section">
+        <h3>🧪 Test: Register & Verify Persistence</h3>
+        <ol>
+          <li>Go to your registration page: <a href="https://arena-x6-registration.onrender.com" target="_blank">Open Site</a></li>
+          <li>Register a test team</li>
+          <li>Login to admin dashboard</li>
+          <li>Verify team appears</li>
+          <li>Go to Render → Manually restart your web service</li>
+          <li>After restart, login to admin again</li>
+          <li>✅ <strong>Team should still be there!</strong></li>
+        </ol>
+        <button class="btn" onclick="checkDiagnostic()">Check Database Status</button>
+        <div id="diagnosticResult" class="test-result"></div>
+      </div>
+
+      <div class="alert alert-success" id="completionAlert" style="display: none;">
+        <strong>🎉 Congratulations!</strong><br>
+        Your data is now stored permanently in PostgreSQL!<br>
+        Teams will NEVER be deleted when server restarts.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function completeStep(stepNum) {
+      const checkbox = document.getElementById('check' + stepNum);
+      const step = document.getElementById('step' + stepNum);
+      
+      if (checkbox.checked) {
+        step.classList.add('completed');
+        
+        if (stepNum === 5) {
+          document.getElementById('postgres-success').style.display = 'block';
+        }
+      } else {
+        step.classList.remove('completed');
+      }
+      
+      // Check if all steps completed
+      let allCompleted = true;
+      for (let i = 1; i <= 6; i++) {
+        if (!document.getElementById('check' + i).checked) {
+          allCompleted = false;
+          break;
+        }
+      }
+      
+      if (allCompleted) {
+        document.getElementById('completionAlert').style.display = 'block';
+      } else {
+        document.getElementById('completionAlert').style.display = 'none';
+      }
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert('Copied: ' + text);
+    }
+
+    function copyCommands() {
+      const commands = 'git add .\ngit commit -m "Add PostgreSQL support"\ngit push origin main';
+      navigator.clipboard.writeText(commands);
+      alert('Commands copied! Paste in your terminal.');
+    }
+
+    async function initAdmin() {
+      const resultDiv = document.getElementById('adminResult');
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'test-result alert-info';
+      resultDiv.textContent = 'Creating admin user...';
+      
+      try {
+        const response = await fetch('https://arena-x6-registration.onrender.com/api/admin/init-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          resultDiv.className = 'test-result alert-success';
+          resultDiv.innerHTML = `<strong>✅ Success!</strong><br><br>
+            ${data.message}<br><br>
+            <strong>Login Credentials:</strong><br>
+            Username: ${data.username || 'admin'}<br>
+            Password: ${data.default_password || 'admin@arena2026'}`;
+        } else {
+          resultDiv.className = 'test-result alert-warning';
+          resultDiv.textContent = '⚠️ ' + data.message;
+        }
+      } catch (error) {
+        resultDiv.className = 'test-result alert-warning';
+        resultDiv.innerHTML = `<strong>❌ Error:</strong><br>${error.message}<br><br>
+          Make sure your deployment finished and DATABASE_URL is set correctly.`;
+      }
+    }
+
+    async function checkDiagnostic() {
+      const resultDiv = document.getElementById('diagnosticResult');
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'test-result alert-info';
+      resultDiv.textContent = 'Checking database status...';
+      
+      try {
+        const response = await fetch('https://arena-x6-registration.onrender.com/api/diagnostic');
+        const data = await response.json();
+        
+        if (data.success) {
+          resultDiv.className = 'test-result alert-success';
+          resultDiv.innerHTML = `<strong>✅ Database Connected!</strong><br><br>
+            <strong>Status:</strong><br>
+            • Admin Users: ${data.database.admin_users}<br>
+            • Registered Teams: ${data.database.teams}<br>
+            • Database Type: ${data.database.database_file || 'PostgreSQL'}`;
+        } else {
+          resultDiv.className = 'test-result alert-warning';
+          resultDiv.textContent = '⚠️ ' + data.message;
+        }
+      } catch (error) {
+        resultDiv.className = 'test-result alert-warning';
+        resultDiv.textContent = '❌ Cannot connect. Make sure your service is running.';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check & Fix Admin on Render</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    h1 { color: #9333EA; }
+    button {
+      background: #9333EA;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    button:hover { background: #7e22ce; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+    .success { background: #d1fae5; border: 1px solid #10b981; }
+    .error { background: #fee2e2; border: 1px solid #ef4444; }
+    .info { background: #dbeafe; border: 1px solid #3b82f6; }
+    .section { 
+      margin: 20px 0; 
+      padding: 20px; 
+      border: 2px solid #e5e7eb; 
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 Admin Setup Diagnostic Tool</h1>
+  <p>Use this tool to check and fix admin user issues on your Render deployment.</p>
+
+  <!-- Step 1: Check Setup -->
+  <div class="section">
+    <h2>Step 1: Check Current Setup</h2>
+    <button onclick="checkSetup()">Check if Admin Exists</button>
+    <div id="checkResult"></div>
+  </div>
+
+  <!-- Step 2: Initialize Admin -->
+  <div class="section">
+    <h2>Step 2: Create/Reset Admin User</h2>
+    <button onclick="initializeAdmin()">Initialize Admin User</button>
+    <div id="initResult"></div>
+  </div>
+
+  <!-- Step 3: Test Login -->
+  <div class="section">
+    <h2>Step 3: Test Login Credentials</h2>
+    <div style="margin: 10px 0;">
+      <input type="text" id="testUsername" placeholder="Username" value="admin" style="padding: 8px; width: 200px;">
+      <input type="password" id="testPassword" placeholder="Password" value="admin@arena2026" style="padding: 8px; width: 200px;">
+    </div>
+    <button onclick="testLogin()">Test Login</button>
+    <div id="loginResult"></div>
+  </div>
+
+  <script>
+    const BASE_URL = 'https://arena-x6-registration.onrender.com/api';
+
+    async function checkSetup() {
+      const resultDiv = document.getElementById('checkResult');
+      resultDiv.textContent = 'Checking setup...';
+      resultDiv.className = 'result info';
+      
+      try {
+        const response = await fetch(`${BASE_URL}/admin/check-setup`);
+        const data = await response.json();
+        
+        if (data.success) {
+          resultDiv.className = 'result ' + (data.admin_exists ? 'success' : 'error');
+          resultDiv.textContent = `Status: ${data.admin_exists ? '✅ Admin Exists' : '❌ No Admin User'}\n\nDetails:\n${JSON.stringify(data, null, 2)}`;
+        } else {
+          resultDiv.className = 'result error';
+          resultDiv.textContent = `❌ Error: ${data.message}`;
+        }
+      } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.textContent = `❌ Network Error: ${error.message}\n\nYour Render service may be sleeping. Visit the main site first to wake it up.`;
+      }
+    }
+
+    async function initializeAdmin() {
+      const resultDiv = document.getElementById('initResult');
+      resultDiv.textContent = 'Creating admin user...';
+      resultDiv.className = 'result info';
+      
+      try {
+        const response = await fetch(`${BASE_URL}/admin/init-admin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          resultDiv.className = 'result success';
+          resultDiv.textContent = `✅ Success!\n\n${data.message}\n\nLogin Credentials:\nUsername: ${data.username || 'admin'}\nPassword: ${data.default_password || 'admin@arena2026'}\n\nNow try logging in!`;
+        } else {
+          resultDiv.className = 'result error';
+          resultDiv.textContent = `❌ Error: ${data.message}`;
+        }
+      } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.textContent = `❌ Network Error: ${error.message}`;
+      }
+    }
+
+    async function testLogin() {
+      const resultDiv = document.getElementById('loginResult');
+      const username = document.getElementById('testUsername').value;
+      const password = document.getElementById('testPassword').value;
+      
+      if (!username || !password) {
+        resultDiv.className = 'result error';
+        resultDiv.textContent = '❌ Please enter both username and password';
+        return;
+      }
+      
+      resultDiv.textContent = 'Testing login...';
+      resultDiv.className = 'result info';
+      
+      try {
+        const response = await fetch(`${BASE_URL}/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          resultDiv.className = 'result success';
+          resultDiv.textContent = `✅ Login Successful!\n\nToken received: ${data.token.substring(0, 20)}...\nAdmin: ${data.admin.username}\n\nYou can now login to the admin panel!`;
+        } else {
+          resultDiv.className = 'result error';
+          resultDiv.textContent = `❌ Login Failed (${response.status})\n\nMessage: ${data.message}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+        }
+      } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.textContent = `❌ Network Error: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>

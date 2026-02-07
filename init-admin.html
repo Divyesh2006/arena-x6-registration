@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Initialize Admin on Render</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    button {
+      background: #9333EA;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #7e22ce;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      text-align: left;
+    }
+    .success {
+      background: #d1fae5;
+      border: 1px solid #10b981;
+    }
+    .error {
+      background: #fee2e2;
+      border: 1px solid #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 Initialize Admin User on Render</h1>
+  <p>Click the button below to create the admin user in your production database:</p>
+  
+  <button onclick="initializeAdmin()">Initialize Admin User</button>
+  
+  <div id="result"></div>
+
+  <script>
+    async function initializeAdmin() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = 'Initializing admin user...';
+      resultDiv.className = '';
+      
+      try {
+        const response = await fetch('https://arena-x6-registration.onrender.com/api/admin/init-admin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          resultDiv.className = 'success';
+          resultDiv.textContent = `✅ Success!\n\n${data.message}\n\nUsername: ${data.username || 'admin'}\nPassword: ${data.default_password || 'admin@arena2026'}`;
+        } else {
+          resultDiv.className = 'error';
+          resultDiv.textContent = `❌ Error: ${data.message}`;
+        }
+      } catch (error) {
+        resultDiv.className = 'error';
+        resultDiv.textContent = `❌ Network Error: ${error.message}\n\nMake sure your Render service is running and not sleeping.`;
+      }
+    }
+  </script>
+</body>
+</html>

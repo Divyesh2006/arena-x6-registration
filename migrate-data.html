@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Migrate Old Data to PostgreSQL</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 10px; }
+    .content { padding: 30px; }
+    
+    .step {
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .step h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .step-number {
+      background: #667eea;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    .code-box {
+      background: #2d3748;
+      color: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      position: relative;
+      overflow-x: auto;
+    }
+    .copy-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .copy-btn:hover { background: #5568d3; }
+    
+    .alert {
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+    .alert-info {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      color: #1e3a8a;
+    }
+    .alert-warning {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      color: #92400e;
+    }
+    .alert-success {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+    }
+    
+    ol { margin-left: 20px; line-height: 1.8; }
+    ol li { margin: 8px 0; }
+    code {
+      background: #e5e7eb;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #d63384;
+    }
+    strong { color: #333; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📦 Migrate Old Data to PostgreSQL</h1>
+      <p>Transfer your existing SQLite data to permanent PostgreSQL storage</p>
+    </div>
+    
+    <div class="content">
+      <div class="alert alert-info">
+        <strong>📋 What this does:</strong><br>
+        This migration tool will copy all your existing team registrations and admin users from your local SQLite database to the PostgreSQL database on Render, so all your old data will be preserved!
+      </div>
+
+      <div class="step">
+        <span class="step-number">1</span>
+        <h3>First: Complete PostgreSQL Setup</h3>
+        <div style="margin-left: 42px;">
+          <p>Before migrating data, you MUST complete the PostgreSQL setup:</p>
+          <ol>
+            <li>Create PostgreSQL database on Render</li>
+            <li>Add DATABASE_URL to your web service</li>
+            <li>Deploy your code</li>
+          </ol>
+          <p style="margin-top: 10px;">✅ If you haven't done this yet, open: <code>setup-postgresql.html</code></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <h3>Get Your PostgreSQL URL</h3>
+        <div style="margin-left: 42px;">
+          <ol>
+            <li>Go to <strong>Render Dashboard</strong> → <strong>PostgreSQL</strong> → <code>arena-x6-db</code></li>
+            <li>Copy the <strong>Internal Database URL</strong></li>
+            <li>It looks like: <code>postgresql://arena_admin:xxxxx@dpg-xxxxx/arena_x6</code></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <h3>Create .env File</h3>
+        <div style="margin-left: 42px;">
+          <p>In your <code>backend</code> folder, create a file named <code>.env</code> and add:</p>
+          <div class="code-box">
+DATABASE_URL=paste_your_postgresql_url_here
+            <button class="copy-btn" onclick="copyText('DATABASE_URL=')">Copy</button>
+          </div>
+          <p>Replace <code>paste_your_postgresql_url_here</code> with the actual URL from step 2.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">4</span>
+        <h3>Run Migration Script</h3>
+        <div style="margin-left: 42px;">
+          <p>Open your terminal (in VS Code or Command Prompt) and run:</p>
+          <div class="code-box">
+cd backend
+node migrate-to-postgres.js
+            <button class="copy-btn" onclick="copyCommands()">Copy</button>
+          </div>
+          <p style="margin-top: 15px;"><strong>The script will:</strong></p>
+          <ol>
+            <li>Read all data from your local SQLite database</li>
+            <li>Show you a preview of what will be migrated</li>
+            <li>Ask for confirmation</li>
+            <li>Transfer all teams and admin users to PostgreSQL</li>
+            <li>Show you a summary of what was migrated</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">5</span>
+        <h3>Verify Data Migration</h3>
+        <div style="margin-left: 42px;">
+          <p>After migration completes:</p>
+          <ol>
+            <li>Go to: <a href="https://arena-x6-registration.onrender.com/admin-login" target="_blank">Admin Login</a></li>
+            <li>Login with: <code>admin</code> / <code>admin@arena2026</code></li>
+            <li>✅ All your old teams should now appear!</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="alert alert-success">
+        <strong>🎉 After Migration:</strong><br><br>
+        • All old team registrations will be in PostgreSQL<br>
+        • All new registrations will automatically go to PostgreSQL<br>
+        • Data will NEVER be lost again, even when server restarts<br>
+        • Your SQLite file will remain as a local backup
+      </div>
+
+      <div class="alert alert-warning">
+        <strong>⚠️ Important Notes:</strong><br><br>
+        • The migration is safe - it only ADDS data, never deletes<br>
+        • If a team name already exists in PostgreSQL, it will be skipped<br>
+        • You can run the migration multiple times safely<br>
+        • Keep your local SQLite file as a backup
+      </div>
+
+      <div class="alert alert-info">
+        <strong>❓ Need Help?</strong><br><br>
+        If you get errors:
+        <ol>
+          <li>Make sure PostgreSQL is set up on Render</li>
+          <li>Verify your DATABASE_URL is correct in .env file</li>
+          <li>Check if you're in the <code>backend</code> folder when running the script</li>
+          <li>Ensure <code>pg</code> package is installed: <code>npm install pg</code></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert('Copied! Now paste your PostgreSQL URL after the = sign');
+    }
+
+    function copyCommands() {
+      const commands = 'cd backend\nnode migrate-to-postgres.js';
+      navigator.clipboard.writeText(commands);
+      alert('Commands copied! Paste in your terminal.');
+    }
+  </script>
+</body>
+</html>
