@@ -18,7 +18,7 @@ const { generateExcelReport } = require('../utils/excelGenerator');
  */
 router.post('/init-admin', async (req, res) => {
   try {
-    const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
+    const adminCount = await db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
     
     if (adminCount.count > 0) {
       return res.json({
@@ -33,7 +33,7 @@ router.post('/init-admin', async (req, res) => {
     const password = 'admin@arena2026';
     const hash = bcrypt.hashSync(password, 10);
     
-    db.prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)').run('admin', hash);
+    await db.prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)').run('admin', hash);
     
     console.log('✅ Admin user created via init-admin endpoint');
     
@@ -57,10 +57,10 @@ router.post('/init-admin', async (req, res) => {
  * GET /api/admin/check-setup
  * Check if admin user exists (diagnostic endpoint)
  */
-router.get('/check-setup', (req, res) => {
+router.get('/check-setup', async (req, res) => {
   try {
-    const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
-    const admin = db.prepare('SELECT username, created_at FROM admin_users LIMIT 1').get();
+    const adminCount = await db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
+    const admin = await db.prepare('SELECT username, created_at FROM admin_users LIMIT 1').get();
     
     res.json({
       success: true,
@@ -87,7 +87,7 @@ router.post('/login', validateLogin, checkValidation, async (req, res) => {
     const { username, password } = req.body;
 
     // Find admin user
-    const admin = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
+    const admin = await db.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
 
     if (!admin) {
       console.log(`❌ Login failed: Admin user '${username}' not found`);
@@ -109,7 +109,7 @@ router.post('/login', validateLogin, checkValidation, async (req, res) => {
     }
 
     // Update last login time
-    db.prepare('UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(admin.id);
+    await db.prepare('UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(admin.id);
 
     // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET || 'arena_x6_default_secret_key_2026_change_in_production';
@@ -172,7 +172,7 @@ router.get('/teams', authenticateToken, async (req, res) => {
     params.push(parseInt(limit), parseInt(offset));
 
     // Get teams
-    const teams = db.prepare(query).all(...params);
+    const teams = await db.prepare(query).all(...params);
 
     // Get total count for pagination
     let countQuery = 'SELECT COUNT(*) as total FROM teams WHERE 1=1';
@@ -189,7 +189,7 @@ router.get('/teams', authenticateToken, async (req, res) => {
       countParams.push(year);
     }
 
-    const countResult = db.prepare(countQuery).get(...countParams);
+    const countResult = await db.prepare(countQuery).get(...countParams);
     const total = countResult.total;
 
     res.json({
@@ -219,11 +219,11 @@ router.get('/teams', authenticateToken, async (req, res) => {
 router.get('/stats', authenticateToken, async (req, res) => {
   try {
     // Total teams
-    const totalResult = db.prepare('SELECT COUNT(*) as total FROM teams').get();
+    const totalResult = await db.prepare('SELECT COUNT(*) as total FROM teams').get();
     const total = totalResult.total;
 
     // Year-wise breakdown
-    const yearWise = db.prepare(`
+    const yearWise = await db.prepare(`
       SELECT year, COUNT(*) as count 
       FROM teams 
       GROUP BY year 
@@ -242,14 +242,14 @@ router.get('/stats', authenticateToken, async (req, res) => {
     });
 
     // Recent registrations (last 5)
-    const recent = db.prepare(`
+    const recent = await db.prepare(`
       SELECT team_name, created_at 
       FROM teams 
       ORDER BY created_at DESC 
       LIMIT 5
     `).all();    
     // Today's registrations
-    const todayResult = db.prepare(`
+    const todayResult = await db.prepare(`
       SELECT COUNT(*) as count
       FROM teams
       WHERE DATE(created_at) = DATE('now')
@@ -285,7 +285,7 @@ router.delete('/teams/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if team exists
-    const team = db.prepare('SELECT team_name FROM teams WHERE id = ?').get(id);
+    const team = await db.prepare('SELECT team_name FROM teams WHERE id = ?').get(id);
 
     if (!team) {
       return res.status(404).json({
@@ -297,7 +297,7 @@ router.delete('/teams/:id', authenticateToken, async (req, res) => {
     const teamName = team.team_name;
 
     // Delete team
-    db.prepare('DELETE FROM teams WHERE id = ?').run(id);
+    await db.prepare('DELETE FROM teams WHERE id = ?').run(id);
 
     console.log(`🗑️ Team deleted: ${teamName} (ID: ${id}) by admin: ${req.admin.username}`);
 
@@ -322,7 +322,7 @@ router.delete('/teams/:id', authenticateToken, async (req, res) => {
 router.get('/export-excel', authenticateToken, async (req, res) => {
   try {
     // Get all teams ordered by registration date
-    const teams = db.prepare(`
+    const teams = await db.prepare(`
       SELECT * FROM teams 
       ORDER BY created_at DESC
     `).all();

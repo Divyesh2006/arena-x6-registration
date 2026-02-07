@@ -24,7 +24,7 @@ router.post('/', validateRegistration, checkValidation, async (req, res) => {
     } = req.body;
 
     // Check if team name already exists
-    const existingTeams = db.prepare('SELECT id FROM teams WHERE team_name = ?').get(team_name);
+    const existingTeams = await db.prepare('SELECT id FROM teams WHERE team_name = ?').get(team_name);
 
     if (existingTeams) {
       return res.status(400).json({
@@ -34,7 +34,7 @@ router.post('/', validateRegistration, checkValidation, async (req, res) => {
     }
 
     // Check if registration numbers are already registered in another team
-    const existingStudent1 = db.prepare(
+    const existingStudent1 = await db.prepare(
       'SELECT team_name FROM teams WHERE student1_regno = ? OR student2_regno = ?'
     ).get(student1_regno, student1_regno);
 
@@ -45,7 +45,7 @@ router.post('/', validateRegistration, checkValidation, async (req, res) => {
       });
     }
 
-    const existingStudent2 = db.prepare(
+    const existingStudent2 = await db.prepare(
       'SELECT team_name FROM teams WHERE student1_regno = ? OR student2_regno = ?'
     ).get(student2_regno, student2_regno);
 
@@ -57,7 +57,7 @@ router.post('/', validateRegistration, checkValidation, async (req, res) => {
     }
 
     // Find the smallest available ID (to fill gaps from deleted teams)
-    const allIds = db.prepare('SELECT id FROM teams ORDER BY id ASC').all();
+    const allIds = await db.prepare('SELECT id FROM teams ORDER BY id ASC').all();
     let nextId = 1;
     
     // Find the first gap in IDs
@@ -70,7 +70,7 @@ router.post('/', validateRegistration, checkValidation, async (req, res) => {
     }
 
     // Insert new team registration with specific ID
-    const result = db.prepare(
+    const result = await db.prepare(
       `INSERT INTO teams
        (id, team_name, student1_name, student1_regno, student2_name, student2_regno, year)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
@@ -103,7 +103,7 @@ router.get('/check-team-name/:teamName', async (req, res) => {
   try {
     const { teamName } = req.params;
 
-    const team = db.prepare('SELECT id FROM teams WHERE team_name = ?').get(teamName);
+    const team = await db.prepare('SELECT id FROM teams WHERE team_name = ?').get(teamName);
 
     res.json({
       success: true,
